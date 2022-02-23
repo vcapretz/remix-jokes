@@ -1,11 +1,4 @@
-import {
-  Links,
-  LiveReload,
-  Meta,
-  Outlet,
-  Scripts,
-  ScrollRestoration
-} from "remix";
+import { Links, LiveReload, Outlet } from "remix";
 import type { MetaFunction } from "remix";
 
 export const meta: MetaFunction = () => {
@@ -18,13 +11,11 @@ export default function App() {
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
-        <Meta />
+        <title>Remix: so great, it's funny!</title>
         <Links />
       </head>
       <body>
         <Outlet />
-        <ScrollRestoration />
-        <Scripts />
         <LiveReload />
       </body>
     </html>

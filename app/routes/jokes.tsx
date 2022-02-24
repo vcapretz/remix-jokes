@@ -1,13 +1,29 @@
-import type { LinksFunction } from "remix";
+import { LinksFunction, LoaderFunction, useLoaderData } from "remix";
 import { Link, Outlet } from "remix";
 
 import stylesUrl from "~/styles/jokes.css";
+import { db } from "~/utils/db.server";
 
 export const links: LinksFunction = () => {
   return [{ rel: "stylesheet", href: stylesUrl }];
 };
 
+type LoaderData = {
+  jokes: { id: string; name: string }[];
+};
+
+export const loader: LoaderFunction = async (): Promise<LoaderData> => {
+  const jokes = await db.joke.findMany({
+    select: { id: true, name: true, content: true },
+    orderBy: { createdAt: "desc" },
+  });
+
+  return { jokes };
+};
+
 export default function JokesRoute() {
+  const { jokes } = useLoaderData<LoaderData>();
+
   return (
     <div className="jokes-layout">
       <header className="jokes-header">
@@ -28,9 +44,11 @@ export default function JokesRoute() {
             <p>Here are a few more jokes to check out:</p>
 
             <ul>
-              <li>
-                <Link to="some-joke-id">Hippo</Link>
-              </li>
+              {jokes.map((joke) => (
+                <li key={joke.id}>
+                  <Link to={joke.id}>{joke.name}</Link>
+                </li>
+              ))}
             </ul>
 
             <Link to="new" className="button">

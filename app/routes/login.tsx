@@ -1,7 +1,7 @@
 import { LinksFunction, ActionFunction, json, useActionData } from "remix";
 import { Link, useSearchParams } from "remix";
 import { db } from "~/utils/db.server";
-import { createUserSession, login } from "~/utils/session.server";
+import { createUserSession, login, register } from "~/utils/session.server";
 
 import stylesUrl from "../styles/login.css";
 
@@ -77,21 +77,27 @@ export const action: ActionFunction = async ({ request }) => {
   }
 
   if (loginType === "register") {
-    const user = await db.user.findFirst({
+    const userExists = await db.user.findFirst({
       where: { username },
     });
 
-    if (user) {
+    if (userExists) {
       return badRequest({
         fields,
         formError: `User with username ${username} already exists`,
       });
     }
 
-    return badRequest({
-      fields,
-      formError: "Not implemented",
-    });
+    const user = await register({ username, password });
+
+    if (!user) {
+      return badRequest({
+        fields,
+        formError: `Something went wrong trying to create a new user.`,
+      });
+    }
+
+    return createUserSession(user.id, redirectTo);
   }
 
   return badRequest({ formError: `Select a login type.` });

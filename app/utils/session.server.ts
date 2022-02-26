@@ -1,4 +1,4 @@
-import bycrypt from "bcryptjs";
+import bcrypt from "bcryptjs";
 import { createCookieSessionStorage, redirect } from "remix";
 import { db } from "./db.server";
 
@@ -7,6 +7,21 @@ type LoginForm = {
   password: string;
 };
 
+type RegisterForm = {
+  username: string;
+  password: string;
+};
+
+export async function register({ username, password }: RegisterForm) {
+  const passwordHash = await bcrypt.hash(password, 10);
+
+  const user = await db.user.create({
+    data: { username, passwordHash },
+  });
+
+  return { id: user.id, username };
+}
+
 export async function login({ username, password }: LoginForm) {
   const user = await db.user.findFirst({ where: { username } });
 
@@ -14,7 +29,7 @@ export async function login({ username, password }: LoginForm) {
     return null;
   }
 
-  const isCorrectPassword = await bycrypt.compare(password, user.passwordHash);
+  const isCorrectPassword = await bcrypt.compare(password, user.passwordHash);
 
   if (!isCorrectPassword) {
     return null;

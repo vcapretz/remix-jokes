@@ -1,4 +1,4 @@
-import { LinksFunction, LoaderFunction, useLoaderData } from "remix";
+import { Form, LinksFunction, LoaderFunction, useLoaderData } from "remix";
 import { Link, Outlet } from "remix";
 
 import stylesUrl from "~/styles/jokes.css";
@@ -45,11 +45,11 @@ export default function JokesRoute() {
             <div className="user-info">
               <span>{`Hi ${user.username}`}</span>
 
-              <form action="/logout" method="post">
+              <Form action="/logout" method="post">
                 <button type="submit" className="button">
                   Logout
                 </button>
-              </form>
+              </Form>
             </div>
           ) : (
             <Link to="/login">Login</Link>
@@ -66,13 +66,23 @@ export default function JokesRoute() {
             <ul>
               {jokes.map((joke) => (
                 <li key={joke.id}>
-                  <Link to={joke.id}>{joke.name}</Link>
+                  <Link to={joke.id} prefetch="intent">
+                    {joke.name}
+                  </Link>
                 </li>
               ))}
             </ul>
 
             <Link to="new" className="button">
               Add your own
+            </Link>
+
+            <Link
+              reloadDocument
+              to="/jokes.rss"
+              style={{ display: "block", marginTop: "1.25rem" }}
+            >
+              RSS Feed
             </Link>
           </div>
 
